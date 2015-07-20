@@ -11,4 +11,4 @@ pom.xml.asc
 dev/local.clj
 figwheel_server.log
 resources/public/js/out
-
+resources/public/js/app.js
