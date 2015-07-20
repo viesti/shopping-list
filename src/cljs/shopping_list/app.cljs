@@ -6,6 +6,9 @@
 (defn error-handler [{:keys [status status-text failure]}]
   (.log js/console (str status status-text failure)))
 
+(def handlers {:handler state/update-items
+               :error-handler error-handler})
+
 (defn needed-items []
   [:div.item-box
    [:h1 "Tarvitaan"]
@@ -14,22 +17,10 @@
           ^{:key (str id)}
           [:li [:div
                 [:button.icon-ok {:on-click (fn [_]
-                                              (POST "/buy" {:params {:id id}
-                                                            :handler state/update-items
-                                                            :error-handler error-handler}))}]
+                                              (POST "/buy" (merge handlers {:params {:id id}})))}]
                 [:span (str (if (> count 1)
                               (str count " ")
                               "") name)]]])]])
-
-(defn new-selection [dir old-selection]
-  (or (when-let [[prev current next] (first (filter (fn [[_ current _]]
-                                                      (= old-selection current))
-                                                    (partition 3 1 (concat [nil] @state/matches [nil]))))]
-        (if (= dir :up)
-          prev next))
-      (if (= dir :up)
-        (last @state/matches)
-        (first @state/matches))))
 
 (defn item-controls []
   [:div
@@ -43,6 +34,16 @@
      :on-click (fn [_] (reset! state/item-control :remove))}
     "Poista"]
    [:span " vaihtoehtoja"]])
+
+(defn new-selection [dir old-selection]
+  (or (when-let [[prev current next] (first (filter (fn [[_ current _]]
+                                                      (= old-selection current))
+                                                    (partition 3 1 (concat [nil] @state/matches [nil]))))]
+        (if (= dir :up)
+          prev next))
+      (if (= dir :up)
+        (last @state/matches)
+        (first @state/matches))))
 
 (defn all-items []
   [:div.item-box
@@ -59,9 +60,7 @@
                               (reset! state/selected-match nil))))
              :on-key-down (fn [event]
                             (when (= 13 (.-keyCode event))
-                              (POST "/add" {:params {:item-name (or (:name @state/selected-match) @state/item-name)}
-                                            :handler state/update-items
-                                            :error-handler error-handler}))
+                              (POST "/add" (merge handlers {:params {:item-name (or (:name @state/selected-match) @state/item-name)}})))
                             (when (#{40 38} (.-keyCode event))
                               (let [dir (get {40 :down 38 :up} (.-keyCode event))
                                     selection @state/selected-match]
@@ -70,9 +69,7 @@
              :value @state/item-name}]
     [:button
      {:on-click (fn [_]
-                  (POST "/add" {:params {:item-name @state/item-name}
-                                :handler state/update-items
-                                :error-handler error-handler}))}
+                  (POST "/add" (merge handlers {:params {:item-name @state/item-name}})))}
      "Lisää"]
     [:ul.matches
      {:style {:display (if (seq @state/matches) "block" "none")}}
@@ -82,21 +79,15 @@
                 [:li
                  {:class (if (= selected-id id) "selected" "deselected")
                   :on-click (fn [_]
-                              (POST "/add" {:params {:item-name name}
-                                            :handler state/update-items
-                                            :error-handler error-handler}))}
+                              (POST "/add" (merge handlers {:params {:item-name name}})))}
                  name])))]]
    [:ul (doall (for [{:keys [id name]} @state/items]
                  ^{:key (str id)}
                  [:li
                   [:button {:on-click (fn [_]
                                         (if (= :add @state/item-control)
-                                          (POST "/add" {:params {:item-name name}
-                                                        :handler state/update-items
-                                                        :error-handler error-handler})
-                                          (POST "/remove" {:params {:id id}
-                                                           :handler state/update-items
-                                                           :error-handler error-handler})))}
+                                          (POST "/add" (merge handlers {:params {:item-name name}}))
+                                          (POST "/remove" (merge handlers {:params {:id id}}))))}
                    (if (= :add @state/item-control)
                      "Lisää"
                      "Poista")]
@@ -111,6 +102,4 @@
 (defn ^:export main []
   (reagent/render [main-view]
     (.-body js/document))
-  (GET "/items"
-      :handler state/update-items
-      :error-handler error-handler))
+  (GET "/items" handlers))
