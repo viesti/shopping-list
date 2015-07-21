@@ -6,3 +6,6 @@ deployment:
     branch: master
     commands:
       - lein uberjar
+general:
+  artifacts:
+    - "target/shopping-list.jar"
