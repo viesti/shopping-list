@@ -8,7 +8,7 @@ pom.xml.asc
 /.lein-*
 /.nrepl-port
 /profiles.clj
-dev/local.clj
+config-local.edn
 figwheel_server.log
 resources/public/js/out
 resources/public/js/app.js

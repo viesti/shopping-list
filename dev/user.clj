@@ -7,18 +7,14 @@
             [meta-merge.core :refer [meta-merge]]
             [reloaded.repl :refer [system init start stop go reset]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
-            [shopping-list.config :as config]
-            [shopping-list.system :as system]))
+            [shopping-list.system :as system]
+            [shopping-list.utils :as utils]))
 
 (def dev-config
   {:app {:middleware [wrap-stacktrace]}})
 
-(def config
-  (meta-merge config/defaults
-              config/environ
-              dev-config))
-
-(when (io/resource "local.clj")
-  (load "local"))
-
-(reloaded.repl/set-init! #(system/new-system config))
+(reloaded.repl/set-init! #(system/new-system (meta-merge dev-config
+                                                         (utils/read-config "config.edn")
+                                                         (if (.exists (io/file "config-local.edn"))
+                                                           (utils/read-config "config-local.edn")
+                                                           {}))))

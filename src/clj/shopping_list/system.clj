@@ -15,8 +15,7 @@
   {:app {:middleware [[wrap-not-found :not-found]
                       [wrap-defaults :defaults]]
          :not-found  "Resource Not Found"
-         :defaults   api-defaults}
-   :datomic {:uri "datomic:dev://localhost:4334/shoppinglist"}})
+         :defaults   api-defaults}})
 
 (defn new-system [config]
   (let [config (meta-merge base-config config)]
