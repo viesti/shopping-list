@@ -2,7 +2,6 @@
   (:require [compojure.core :refer [GET POST routes wrap-routes]]
             [ring.util.response :refer [response]]
             [ring.middleware.transit :refer [wrap-transit-response wrap-transit-body]]
-            [ring.middleware.params :refer [wrap-params]]
             [datomic.api :as d]))
 
 (defn get-items [db]

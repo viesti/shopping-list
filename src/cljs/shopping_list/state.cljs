@@ -1,12 +1,18 @@
 (ns shopping-list.state
-  (:require [reagent.core :as reagent]
-            [ajax.core :refer [GET POST]]))
+  (:require [reagent.core :as reagent]))
 
-(defonce items (reagent/atom []))
-(defonce item-name (reagent/atom ""))
-(defonce matches (reagent/atom []))
-(defonce selected-match (reagent/atom nil))
-(defonce item-control (reagent/atom :add))
+(defonce views (atom {}))
 
-(defn update-items [new-items]
-  (reset! items new-items))
+(defonce current-view (reagent/atom :items))
+
+(defn get-view []
+  (get @views @current-view))
+
+(defn set-view
+  ([view]
+   (reset! current-view view))
+  ([view data]
+   (reset! current-view view)
+   (when-let [init (:init (meta (get-view)))]
+     (init data))))
+

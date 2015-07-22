@@ -49,3 +49,20 @@ ul {
 .item-control-deselected {
   font-weight: normal;
 }
+
+.table {
+  display: table;
+}
+
+.row {
+  display: table-row;
+}
+
+.column {
+  display: table-cell;
+  margin: 5px;
+}
+
+.label {
+  text-align: right;
+}

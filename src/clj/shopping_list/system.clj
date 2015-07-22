@@ -9,7 +9,8 @@
             [shopping-list.component.datomic :refer [datomic-component]]
             [shopping-list.endpoint.index :refer [index]]
             [shopping-list.endpoint.resources :refer [resources]]
-            [shopping-list.endpoint.items :refer [items]]))
+            [shopping-list.endpoint.items :refer [items]]
+            [shopping-list.endpoint.login :refer [login]]))
 
 (def base-config
   {:app {:middleware [[wrap-not-found :not-found]
@@ -20,13 +21,17 @@
 (defn new-system [config]
   (let [config (meta-merge base-config config)]
     (-> (component/system-map
+         ;; services
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
+         :datomic (datomic-component (:datomic config))
+         ;; endpoints
          :resources (endpoint-component resources)
          :index (endpoint-component index)
          :items (endpoint-component items)
-         :datomic (datomic-component (:datomic config)))
+         :login (endpoint-component login))
         (component/system-using
          {:items [:datomic]
+          :login [:datomic]
           :http  [:app]
-          :app   [:index :resources :items]}))))
+          :app   [:login :index :resources :items]}))))

@@ -19,7 +19,8 @@
       (try
         (let [started-system (component/start system)]
           (reset! app-system started-system)
-          (.addShutdownHook (Runtime/getRuntime) (java.lang.Thread. #(component/stop started-system))))
+          (.addShutdownHook (Runtime/getRuntime) (java.lang.Thread. #(component/stop started-system)))
+          (println "Running, yay!"))
         (catch Throwable t
           (println "Error while starting application:")
           (println t)
