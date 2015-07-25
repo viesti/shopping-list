@@ -13,7 +13,8 @@
   (reset! items new-items))
 
 (defn error-handler [{:keys [status status-text failure]}]
-  (.log js/console (str status status-text failure)))
+  (.log js/console (str status " " status-text " " failure))
+  (state/set-view :login))
 
 (def handlers {:handler set-items
                :error-handler error-handler})
@@ -103,9 +104,21 @@
                   [:span name]]))]
    [item-controls]])
 
+(defn logout []
+  [:button.logout {:on-click (fn [event]
+                               (POST "/logout"
+                                   {:handler (fn [msg]
+                                               (.log js/console msg)
+                                               (state/set-view :login))
+                                    :error-handler error-handler}))}
+   "Kirjaudu pois"])
+
+(defn view []
+  [:div
+   [needed-items]
+   [all-items]
+   [logout]])
+
 (def items-view (with-meta
-                  (fn []
-                    [:div
-                     [needed-items]
-                     [all-items]])
+                  view
                   {:init set-items}))

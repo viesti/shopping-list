@@ -2,6 +2,7 @@
   (:require [compojure.core :refer [GET POST routes wrap-routes]]
             [ring.util.response :refer [response]]
             [ring.middleware.transit :refer [wrap-transit-response wrap-transit-body]]
+            [shopping-list.middleware.session-timeout :refer [wrap-session-timeout]]
             [datomic.api :as d]))
 
 (defn get-items [db]
@@ -28,4 +29,5 @@
          (let [{:keys [db-after]} @(d/transact conn [[:db.fn/retractEntity id]])]
            (response (get-items db-after)))))
       (wrap-routes wrap-transit-response)
-      (wrap-routes wrap-transit-body)))
+      (wrap-routes wrap-transit-body)
+      wrap-session-timeout))

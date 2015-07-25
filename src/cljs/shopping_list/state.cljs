@@ -3,7 +3,7 @@
 
 (defonce views (atom {}))
 
-(defonce current-view (reagent/atom :items))
+(defonce current-view (reagent/atom :login))
 
 (defn get-view []
   (get @views @current-view))

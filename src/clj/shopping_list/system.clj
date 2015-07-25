@@ -6,20 +6,30 @@
             [meta-merge.core :refer [meta-merge]]
             [ring.component.jetty :refer [jetty-server]]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [ring.middleware.session.cookie :as cookie]
             [shopping-list.component.datomic :refer [datomic-component]]
             [shopping-list.endpoint.index :refer [index]]
             [shopping-list.endpoint.resources :refer [resources]]
             [shopping-list.endpoint.items :refer [items]]
-            [shopping-list.endpoint.login :refer [login]]))
+            [shopping-list.endpoint.authentication :refer [authentication]]))
 
-(def base-config
+(defn base-config [session-key]
   {:app {:middleware [[wrap-not-found :not-found]
                       [wrap-defaults :defaults]]
          :not-found  "Resource Not Found"
-         :defaults   api-defaults}})
+         :defaults   (meta-merge api-defaults {:session {:store (cookie/cookie-store {:key session-key})
+                                                         :cookie-attrs {:http-only true}
+                                                         :flash true}})}})
+
+(defn read-session-key [path]
+  (with-open [in (clojure.java.io/input-stream path)]
+    (let [bs (byte-array 16)]
+      (.read in bs)
+      bs)))
 
 (defn new-system [config]
-  (let [config (meta-merge base-config config)]
+  (let [session-key (read-session-key (-> config :http :session-key-file))
+        config (meta-merge (base-config session-key) config)]
     (-> (component/system-map
          ;; services
          :app  (handler-component (:app config))
@@ -29,7 +39,7 @@
          :resources (endpoint-component resources)
          :index (endpoint-component index)
          :items (endpoint-component items)
-         :login (endpoint-component login))
+         :login (endpoint-component authentication))
         (component/system-using
          {:items [:datomic]
           :login [:datomic]
