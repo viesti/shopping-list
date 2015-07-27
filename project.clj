@@ -36,7 +36,8 @@
   :test-paths ["test/clj" "test/cljc"]
   :cljsbuild {:builds {:dev {:source-paths ["src/cljs"]
                              :figwheel {:on-jsload "shopping-list.app/main"}
-                             :compiler {:output-to "resources/public/js/app.js"
+                             :compiler {:main shopping-list.app
+                                        :output-to "resources/public/js/app.js"
                                         :output-dir "resources/public/js/out"
                                         :asset-path "js/out"
                                         :optimizations :none
