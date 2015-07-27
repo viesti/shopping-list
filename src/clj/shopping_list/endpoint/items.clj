@@ -30,4 +30,4 @@
            (response (get-items db-after)))))
       (wrap-routes wrap-transit-response)
       (wrap-routes wrap-transit-body)
-      wrap-session-timeout))
+      (wrap-routes wrap-session-timeout)))

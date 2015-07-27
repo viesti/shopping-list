@@ -62,6 +62,6 @@
                    :repl-options {:init-ns user}
                    :dependencies [[reloaded.repl "0.1.0"]
                                   [org.clojure/tools.namespace "0.2.11"]
-                                  [kerodon "0.6.1"]
-                                  [org.clojure/tools.nrepl "0.2.10"]]}
+                                  [org.clojure/tools.nrepl "0.2.10"]
+                                  [peridot "0.4.0"]]}
    :project/test  {}})
