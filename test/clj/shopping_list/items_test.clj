@@ -18,6 +18,17 @@
     (.reset baos)
     ret))
 
+(def session-key-file (atom nil))
+
+(defn with-session-key [f]
+  (reset! session-key-file (java.io.File/createTempFile "sessionkey" nil))
+  (with-open [out (clojure.java.io/output-stream @session-key-file)]
+    (.write out (byte-array 16) 0 16))
+  (f)
+  (.delete @session-key-file))
+
+(use-fixtures :each with-session-key)
+
 (deftest session-timeout-incremented
   (let [timeout-counter (atom 0)]
     (with-redefs [shopping-list.middleware.session-timeout/wrap-session-timeout (fn [handler]
@@ -26,7 +37,7 @@
                                                                                     (handler request)))]
       (let [uri (str "datomic:mem://" (d/squuid))
             system (-> (system/new-system {:http {:port 3000
-                                                  :session-key-file "sessionkey"}
+                                                  :session-key-file (.getAbsolutePath @session-key-file)}
                                            :datomic {:uri uri}})
                        (assoc :http {}) ;; Mock out Jetty
                        component/start)]
