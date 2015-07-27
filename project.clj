@@ -17,13 +17,15 @@
                  [prismatic/plumbing "0.4.4"]
                  [com.datomic/datomic-pro "0.9.5201" :exclusions [joda-time]]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]
+                 [buddy/buddy-hashers "0.6.0"]
 
                  [org.clojure/clojurescript "0.0-3308"]
                  [cljs-ajax "0.3.13"]
                  [reagent "0.5.0"]]
   :plugins [[lein-gen "0.2.2"]
             [lein-figwheel "0.3.7"]
-            [lein-cljsbuild "1.0.6"]]
+            [lein-cljsbuild "1.0.6"]
+            [com.jakemccrary/lein-test-refresh "0.10.0"]]
   :generators [[duct/generators "0.1.2"]]
   :duct {:ns-prefix shopping-list}
   :main ^:skip-aot shopping-list.main

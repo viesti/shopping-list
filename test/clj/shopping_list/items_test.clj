@@ -8,7 +8,8 @@
             [shopping-list.component.datomic :as datomic]
             [shopping-list.endpoint.authentication :refer [authentication]]
             [shopping-list.endpoint.items :refer [items]]
-            [shopping-list.system :as system]))
+            [shopping-list.system :as system]
+            [buddy.hashers :as hashers]))
 
 (defn- write [x t opts]
   (let [baos (ByteArrayOutputStream.)
@@ -19,15 +20,15 @@
     ret))
 
 (def session-key-file (atom nil))
+(def datomic-uri (str "datomic:mem://" (d/squuid)))
 
-(defn with-session-key [f]
-  (reset! session-key-file (java.io.File/createTempFile "sessionkey" nil))
-  (with-open [out (clojure.java.io/output-stream @session-key-file)]
-    (.write out (byte-array 16) 0 16))
-  (f)
-  (.delete @session-key-file))
-
-(use-fixtures :each with-session-key)
+(use-fixtures :each (fn [f]
+                      (reset! session-key-file (java.io.File/createTempFile "sessionkey" nil))
+                      (with-open [out (clojure.java.io/output-stream @session-key-file)]
+                        (.write out (byte-array 16) 0 16))
+                      (f)
+                      (.delete @session-key-file)
+                      (d/delete-database datomic-uri)))
 
 (deftest session-timeout-incremented
   (let [timeout-counter (atom 0)]
@@ -35,17 +36,22 @@
                                                                                   (fn [request]
                                                                                     (swap! timeout-counter inc)
                                                                                     (handler request)))]
-      (let [uri (str "datomic:mem://" (d/squuid))
-            system (-> (system/new-system {:http {:port 3000
+      (let [system (-> (system/new-system {:http {:port 3000
                                                   :session-key-file (.getAbsolutePath @session-key-file)}
-                                           :datomic {:uri uri}})
+                                           :datomic {:uri datomic-uri}})
                        (assoc :http {}) ;; Mock out Jetty
                        component/start)]
+        (d/transact (d/connect datomic-uri)
+                    [{:db/id #db/id[:db.part/user]
+                      :user/username "foo"
+                      :user/password (hashers/encrypt "bar" {:algorithm :bcrypt+sha512})}])
         (-> (p/session (:handler (:app system)))
             (p/content-type "application/transit+json; charset=utf-8")
             (p/request "/login"
                        :request-method :post
                        :body (write {:username "foo" :password "bar"} :json {}))
+            ((fn [state]
+               state))
             (p/request "/somenonexistingurl")
             ((fn [x]
                (is (zero? @timeout-counter))
@@ -54,3 +60,34 @@
             ((fn [x]
                (is (= 1 @timeout-counter))
                x)))))))
+
+(deftest listing-items-without-session
+  (let [system (-> (system/new-system {:http {:port 3000
+                                              :session-key-file (.getAbsolutePath @session-key-file)}
+                                       :datomic {:uri datomic-uri}})
+                   (assoc :http {}) ;; Mock out Jetty
+                   component/start)]
+    (d/transact (d/connect datomic-uri)
+                [{:db/id #db/id[:db.part/user]
+                  :user/username "foo"
+                  :user/password (hashers/encrypt "bar" {:algorithm :bcrypt+sha512})}])
+    (-> (p/session (:handler (:app system)))
+        (p/content-type "application/transit+json; charset=utf-8")
+        (p/request "/items")
+        ((fn [state]
+           (is (= 401 (get-in state [:response :status])))
+           state))
+        (p/request "/login"
+                   :request-method :post
+                   :body (write {:username "foo" :password "barbar"} :json {}))
+        (p/request "/items")
+        ((fn [state]
+           (is (= 401 (get-in state [:response :status])))
+           state))
+        (p/request "/login"
+                   :request-method :post
+                   :body (write {:username "foo" :password "bar"} :json {}))
+        (p/request "/items")
+        ((fn [state]
+           (is (= 200 (get-in state [:response :status])))
+           state)))))

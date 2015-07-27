@@ -2,6 +2,35 @@
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]))
 
+(def schema
+  [{:db/id (d/tempid :db.part/db)
+    :db/doc "Name of a shopping item"
+    :db/ident :item/name
+    :db/valueType :db.type/string
+    :db/unique :db.unique/identity
+    :db/cardinality :db.cardinality/one
+    :db.install/_attribute :db.part/db}
+   {:db/id (d/tempid :db.part/db)
+    :db/doc "Current amount of a shopping item"
+    :db/ident :item/count
+    :db/valueType :db.type/long
+    :db/cardinality :db.cardinality/one
+    :db.install/_attribute :db.part/db}
+   {:db/id (d/tempid :db.part/db)
+    :db/doc "User identifier"
+    :db/ident :user/username
+    :db/valueType :db.type/string
+    :db/unique :db.unique/identity
+    :db/cardinality :db.cardinality/one
+    :db.install/_attribute :db.part/db}
+   {:db/id (d/tempid :db.part/db)
+    :db/doc "User's (encrypted) password"
+    :db/ident :user/password
+    :db/valueType :db.type/string
+    :db/unique :db.unique/identity
+    :db/cardinality :db.cardinality/one
+    :db.install/_attribute :db.part/db}])
+
 (def inc-count
   (d/function
    '{:lang "clojure"
@@ -34,34 +63,21 @@
              (throw (ex-info (str "Entity " id " does not exist")
                              {:id id})))}))
 
+(def tx-functions
+  [{:db/id #db/id [:db.part/user]
+    :db/ident :item/inc-count
+    :db/doc "Increments the count of a shopping item"
+    :db/fn inc-count}
+   {:db/id #db/id [:db.part/user]
+    :db/ident :item/dec-count
+    :db/doc "Decrements the count of a shopping item"
+    :db/fn dec-count}])
+
 (defn init [uri]
   (d/create-database uri)
   (let [conn (d/connect uri)]
-    (d/transact
-     conn
-     [{:db/id (d/tempid :db.part/db)
-       :db/doc "Name of a shopping item"
-       :db/ident :item/name
-       :db/valueType :db.type/string
-       :db/unique :db.unique/identity
-       :db/cardinality :db.cardinality/one
-       :db.install/_attribute :db.part/db}
-      {:db/id (d/tempid :db.part/db)
-       :db/doc "Current amount of a shopping item"
-       :db/ident :item/count
-       :db/valueType :db.type/long
-       :db/cardinality :db.cardinality/one
-       :db.install/_attribute :db.part/db}])
-    (d/transact
-     conn
-     [{:db/id #db/id [:db.part/user]
-       :db/ident :item/inc-count
-       :db/doc "Increments the count of a shopping item"
-       :db/fn inc-count}
-      {:db/id #db/id [:db.part/user]
-       :db/ident :item/dec-count
-       :db/doc "Decrements the count of a shopping item"
-       :db/fn dec-count}])
+    (d/transact conn schema)
+    (d/transact conn tx-functions)
     conn))
 
 (defrecord Datomic [uri]
