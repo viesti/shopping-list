@@ -18,6 +18,7 @@
                  [com.datomic/datomic-pro "0.9.5201" :exclusions [joda-time]]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]
                  [buddy/buddy-hashers "0.6.0"]
+                 [org.clojure/tools.nrepl "0.2.10"]
 
                  [org.clojure/clojurescript "0.0-3308"]
                  [cljs-ajax "0.3.13"]

@@ -8,6 +8,7 @@
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [ring.middleware.session.cookie :as cookie]
             [shopping-list.component.datomic :refer [datomic-component]]
+            [shopping-list.component.nrepl-server :refer [nrepl-server-component]]
             [shopping-list.endpoint.index :refer [index]]
             [shopping-list.endpoint.resources :refer [resources]]
             [shopping-list.endpoint.items :refer [items]]
@@ -35,6 +36,7 @@
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
          :datomic (datomic-component (:datomic config))
+         :nrepl (nrepl-server-component (-> config :nrepl :port))
          ;; endpoints
          :resources (endpoint-component resources)
          :index (endpoint-component index)
@@ -43,5 +45,5 @@
         (component/system-using
          {:items [:datomic]
           :login [:datomic]
-          :http  [:app]
+          :http  [:app :nrepl]
           :app   [:login :index :resources :items]}))))

@@ -40,6 +40,7 @@
                                                   :session-key-file (.getAbsolutePath @session-key-file)}
                                            :datomic {:uri datomic-uri}})
                        (assoc :http {}) ;; Mock out Jetty
+                       (assoc :nrepl {}) ;; Disable nrepl server
                        component/start)]
         (d/transact (d/connect datomic-uri)
                     [{:db/id #db/id[:db.part/user]
@@ -66,6 +67,7 @@
                                               :session-key-file (.getAbsolutePath @session-key-file)}
                                        :datomic {:uri datomic-uri}})
                    (assoc :http {}) ;; Mock out Jetty
+                   (assoc :nrepl {}) ;; Disable nrepl server
                    component/start)]
     (d/transact (d/connect datomic-uri)
                 [{:db/id #db/id[:db.part/user]
