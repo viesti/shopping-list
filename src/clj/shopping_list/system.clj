@@ -36,7 +36,7 @@
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
          :datomic (datomic-component (:datomic config))
-         :nrepl (nrepl-server-component (-> config :nrepl :port))
+         :nrepl (nrepl-server-component (:nrepl config))
          ;; endpoints
          :resources (endpoint-component resources)
          :index (endpoint-component index)

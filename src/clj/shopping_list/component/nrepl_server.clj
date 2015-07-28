@@ -2,13 +2,13 @@
   (:require [clojure.tools.nrepl.server :refer [start-server stop-server]]
             [com.stuartsierra.component :as component]))
 
-(defrecord NreplServer [port]
+(defrecord NreplServer [host port]
   component/Lifecycle
   (start [this]
     (if (:server this)
       this
-      (let [component (assoc this :server (start-server :port port))]
-        (println "Started nrepl server in port:" port)
+      (let [component (assoc this :server (start-server :bind host :port port))]
+        (println (str "Started nrepl server at " host ":" port))
         component)))
   (stop [this]
     (if-let [server (:server this)]
@@ -18,5 +18,5 @@
         (assoc this :server nil))
       this)))
 
-(defn nrepl-server-component [port]
-  (->NreplServer port))
+(defn nrepl-server-component [{:keys [host port]}]
+  (->NreplServer host port))
