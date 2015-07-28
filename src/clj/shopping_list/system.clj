@@ -40,7 +40,7 @@
          ;; endpoints
          :resources (endpoint-component resources)
          :index (endpoint-component index)
-         :items (endpoint-component items)
+         :items (endpoint-component (partial items (-> config :http :session-timeout-secs)))
          :login (endpoint-component authentication))
         (component/system-using
          {:items [:datomic]

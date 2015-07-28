@@ -15,7 +15,7 @@
                     :name name
                     :count count})))
 
-(defn items [{{conn :conn} :datomic}]
+(defn items [session-timeout-secs {{conn :conn} :datomic}]
   (-> (routes
        (GET "/items" []
          (response (get-items (d/db conn))))
@@ -30,4 +30,4 @@
            (response (get-items db-after)))))
       (wrap-routes wrap-transit-response)
       (wrap-routes wrap-transit-body)
-      (wrap-routes wrap-session-timeout)))
+      (wrap-routes wrap-session-timeout session-timeout-secs)))

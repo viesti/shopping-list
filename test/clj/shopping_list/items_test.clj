@@ -32,12 +32,13 @@
 
 (deftest session-timeout-incremented
   (let [timeout-counter (atom 0)]
-    (with-redefs [shopping-list.middleware.session-timeout/wrap-session-timeout (fn [handler]
+    (with-redefs [shopping-list.middleware.session-timeout/wrap-session-timeout (fn [handler session-timeout-secs]
                                                                                   (fn [request]
                                                                                     (swap! timeout-counter inc)
                                                                                     (handler request)))]
       (let [system (-> (system/new-system {:http {:port 3000
-                                                  :session-key-file (.getAbsolutePath @session-key-file)}
+                                                  :session-key-file (.getAbsolutePath @session-key-file)
+                                                  :session-timeout-secs 30000}
                                            :datomic {:uri datomic-uri}})
                        (assoc :http {}) ;; Mock out Jetty
                        (assoc :nrepl {}) ;; Disable nrepl server
@@ -64,7 +65,8 @@
 
 (deftest listing-items-without-session
   (let [system (-> (system/new-system {:http {:port 3000
-                                              :session-key-file (.getAbsolutePath @session-key-file)}
+                                              :session-key-file (.getAbsolutePath @session-key-file)
+                                              :session-timeout-secs 30000}
                                        :datomic {:uri datomic-uri}})
                    (assoc :http {}) ;; Mock out Jetty
                    (assoc :nrepl {}) ;; Disable nrepl server
