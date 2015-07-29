@@ -60,6 +60,7 @@
    [:h1 "Lisää shoppailuja"]
    [:div
     [:input {:type "text"
+             :on-blur (fn [_] (reset! matches []))
              :on-change (fn [event]
                           (let [text (-> event .-target .-value)]
                             (reset! item-name text)
