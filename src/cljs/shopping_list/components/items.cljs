@@ -95,10 +95,10 @@
    [:ul (doall (for [{:keys [id name]} @items]
                  ^{:key (str id)}
                  [:li
-                  [:button {:on-click (fn [_]
-                                        (if (= :add @item-control)
-                                          (POST "/add" (merge handlers {:params {:item-name name}}))
-                                          (POST "/remove" (merge handlers {:params {:id id}}))))}
+                  [:button.item-control {:on-click (fn [_]
+                                                     (if (= :add @item-control)
+                                                       (POST "/add" (merge handlers {:params {:item-name name}}))
+                                                       (POST "/remove" (merge handlers {:params {:id id}}))))}
                    (if (= :add @item-control)
                      "Lisää"
                      "Poista")]

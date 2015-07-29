@@ -50,6 +50,10 @@ ul {
   font-weight: normal;
 }
 
+.item-control {
+  margin: 5px;
+}
+
 .table {
   display: table;
 }
@@ -69,4 +73,8 @@ ul {
 
 .logout {
   display: block;
+}
+
+.icon-ok {
+  margin: 5px;
 }
