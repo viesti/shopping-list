@@ -55,6 +55,12 @@
         (last @matches)
         (first @matches))))
 
+(defn update-after-selection [items]
+  (set-items items)
+  (reset! item-name "")
+  (reset! matches [])
+  (reset! selected-match nil))
+
 (defn all-items []
   [:div.item-box
    [:h1 "Lisää shoppailuja"]
@@ -71,7 +77,8 @@
                               (reset! selected-match nil))))
              :on-key-down (fn [event]
                             (when (= 13 (.-keyCode event))
-                              (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}})))
+                              (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
+                                                            :handler update-after-selection})))
                             (when (#{40 38} (.-keyCode event))
                               (let [dir (get {40 :down 38 :up} (.-keyCode event))
                                     selection @selected-match]
@@ -90,7 +97,8 @@
                 [:li
                  {:class (if (= selected-id id) "selected" "deselected")
                   :on-click (fn [_]
-                              (POST "/add" (merge handlers {:params {:item-name name}})))}
+                              (POST "/add" (merge handlers {:params {:item-name name}
+                                                            :handler update-after-selection})))}
                  name])))]]
    [:ul (doall (for [{:keys [id name]} @items]
                  ^{:key (str id)}
