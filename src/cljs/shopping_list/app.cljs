@@ -5,8 +5,12 @@
             [shopping-list.components.items :as items]
             [shopping-list.components.login :as login]))
 
+(defn loading-view []
+  [:span ""])
+
 (reset! state/views {:items items/items-view
-                     :login login/login-view})
+                     :login login/login-view
+                     :loading loading-view})
 
 (defn main-view []
   [(state/get-view)])
