@@ -8,4 +8,4 @@ deployment:
       - lein uberjar
 general:
   artifacts:
-    - "target/shopping-list.jar"
+    - "target/uberjar/shopping-list.jar"

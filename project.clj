@@ -52,6 +52,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/app.js"
                                     "resources/public/js/out"
                                     :target-path]
+  :target-path "target/%s/"
   :profiles
   {:dev  [:project/dev  :profiles/dev]
    :test [:project/test :profiles/test]
