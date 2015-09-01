@@ -9,7 +9,8 @@
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [shopping-list.system :as system]
             [shopping-list.utils :as utils]
-            [figwheel]))
+            [figwheel]
+            [figwheel-sidecar.repl-api :as fr]))
 
 (def dev-config
   {:app {:middleware [wrap-stacktrace]}})
