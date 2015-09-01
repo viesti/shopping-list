@@ -6,13 +6,23 @@
 (defrecord Figwheel [config]
   component/Lifecycle
   (start [this]
-    (if (:server this)
+    (if (:started this)
       this
-      (assoc this :server (core/start-server {:output-to "resources/public/js/app.js"
-                                              :output-dir "resources/public/js/out"}))))
-  (stop [{:keys [server] :as this}]
-    ((:http-server server))
-    (assoc this :server nil)))
+      (do
+        (repl/start-figwheel! {:figwheel-options {:nrepl-port 7889}
+                               :build-ids ["dev"]
+                               :all-builds [{:id "dev"
+                                             :source-paths ["src/cljs"]
+                                             :compiler {:main "shopping-list.app"
+                                                        :output-to "resources/public/js/app.js"
+                                                        :output-dir "resources/public/js/out"
+                                                        :asset-path "js/out"
+                                                        :optimizations :none
+                                                        :pretty-print true}}]})
+        (repl/start-autobuild)
+        (assoc this :started true))))
+  (stop [this]
+    (assoc this :started nil)))
 
 (defn figwheel-component [config]
   (->Figwheel config))
