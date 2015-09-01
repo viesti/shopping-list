@@ -8,17 +8,12 @@
   (start [this]
     (if (:started this)
       this
-      (do
+      (let [{:keys [source-paths compiler]} (->> "project.clj" slurp read-string (drop 3) (apply hash-map) :cljsbuild :builds :dev)]
         (repl/start-figwheel! {:figwheel-options {:nrepl-port 7889}
                                :build-ids ["dev"]
                                :all-builds [{:id "dev"
-                                             :source-paths ["src/cljs"]
-                                             :compiler {:main "shopping-list.app"
-                                                        :output-to "resources/public/js/app.js"
-                                                        :output-dir "resources/public/js/out"
-                                                        :asset-path "js/out"
-                                                        :optimizations :none
-                                                        :pretty-print true}}]})
+                                             :source-paths source-paths
+                                             :compiler compiler}]})
         (repl/start-autobuild)
         (assoc this :started true))))
   (stop [this]
