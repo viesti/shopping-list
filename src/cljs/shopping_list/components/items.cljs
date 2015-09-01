@@ -87,7 +87,8 @@
              :value @item-name}]
     [:button
      {:on-click (fn [_]
-                  (POST "/add" (merge handlers {:params {:item-name @item-name}})))}
+                  (POST "/add" (merge handlers {:params {:item-name @item-name}
+                                                :handler update-after-selection})))}
      "Lisää"]
     [:ul.matches
      {:style {:display (if (seq @matches) "block" "none")}}
