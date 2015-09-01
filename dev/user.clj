@@ -8,7 +8,8 @@
             [reloaded.repl :refer [system init start stop go reset]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [shopping-list.system :as system]
-            [shopping-list.utils :as utils]))
+            [shopping-list.utils :as utils]
+            [figwheel]))
 
 (def dev-config
   {:app {:middleware [wrap-stacktrace]}})
@@ -17,4 +18,5 @@
                                                          (utils/read-config "config.edn")
                                                          (if (.exists (io/file "config-local.edn"))
                                                            (utils/read-config "config-local.edn")
-                                                           {}))))
+                                                           {})
+                                                         {:dev-components [:figwheel (figwheel/figwheel-component {})]})))

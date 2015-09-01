@@ -30,18 +30,21 @@
 
 (defn new-system [config]
   (let [session-key (read-session-key (-> config :http :session-key-file))
+        dev-components (:dev-components config)
         config (meta-merge (base-config session-key) config)]
-    (-> (component/system-map
-         ;; services
-         :app  (handler-component (:app config))
-         :http (jetty-server (:http config))
-         :datomic (datomic-component (:datomic config))
-         :nrepl (nrepl-server-component (:nrepl config))
-         ;; endpoints
-         :resources (endpoint-component resources)
-         :index (endpoint-component index)
-         :items (endpoint-component (partial items (-> config :http :session-timeout-secs)))
-         :login (endpoint-component authentication))
+    (-> (component/map->SystemMap
+         (conj {
+                ;; services
+                :app  (handler-component (:app config))
+                :http (jetty-server (:http config))
+                :datomic (datomic-component (:datomic config))
+                :nrepl (nrepl-server-component (:nrepl config))
+                ;; endpoints
+                :resources (endpoint-component resources)
+                :index (endpoint-component index)
+                :items (endpoint-component (partial items (-> config :http :session-timeout-secs)))
+                :login (endpoint-component authentication)}
+               dev-components))
         (component/system-using
          {:items [:datomic]
           :login [:datomic]

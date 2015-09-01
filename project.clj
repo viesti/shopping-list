@@ -22,7 +22,9 @@
 
                  [org.clojure/clojurescript "0.0-3308"]
                  [cljs-ajax "0.3.13"]
-                 [reagent "0.5.0"]]
+                 [reagent "0.5.0"]
+
+                 [figwheel-sidecar "0.3.7"]]
   :plugins [[lein-gen "0.2.2"]
             [lein-figwheel "0.3.7"]
             [lein-cljsbuild "1.0.6"]
