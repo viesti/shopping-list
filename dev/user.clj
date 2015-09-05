@@ -10,7 +10,8 @@
             [shopping-list.system :as system]
             [shopping-list.utils :as utils]
             [figwheel]
-            [figwheel-sidecar.repl-api :as fr]))
+            [figwheel-sidecar.repl-api :as fr]
+            [figwheel-component.core :refer [figwheel-component]]))
 
 (def dev-config
   {:app {:middleware [wrap-stacktrace]}})
@@ -20,4 +21,4 @@
                                                          (if (.exists (io/file "config-local.edn"))
                                                            (utils/read-config "config-local.edn")
                                                            {})
-                                                         {:dev-components [:figwheel (figwheel/figwheel-component {})]})))
+                                                         {:dev-components [:figwheel (figwheel-component :dev)]})))

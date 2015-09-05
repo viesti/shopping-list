@@ -24,7 +24,8 @@
                  [cljs-ajax "0.3.13"]
                  [reagent "0.5.0"]
 
-                 [figwheel-sidecar "0.3.7"]]
+                 [figwheel-sidecar "0.3.9"]
+                 [figwheel-component "0.1.0-SNAPSHOT"]]
   :plugins [[lein-gen "0.2.2"]
             [lein-figwheel "0.3.7"]
             [lein-cljsbuild "1.0.6"]
