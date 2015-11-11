@@ -14,12 +14,13 @@
             [shopping-list.endpoint.items :refer [items]]
             [shopping-list.endpoint.authentication :refer [authentication]]))
 
-(defn base-config [session-key]
+(defn base-config [session-key max-age]
   {:app {:middleware [[wrap-not-found :not-found]
                       [wrap-defaults :defaults]]
          :not-found  "Resource Not Found"
          :defaults   (meta-merge api-defaults {:session {:store (cookie/cookie-store {:key session-key})
-                                                         :cookie-attrs {:http-only true}
+                                                         :cookie-attrs {:http-only true
+                                                                        :max-age max-age}
                                                          :flash true}})}})
 
 (defn read-session-key [path]
@@ -31,7 +32,7 @@
 (defn new-system [config]
   (let [session-key (read-session-key (-> config :http :session-key-file))
         dev-components (:dev-components config)
-        config (meta-merge (base-config session-key) config)]
+        config (meta-merge (base-config session-key (-> config :http :cookie-max-age)) config)]
     (-> (component/map->SystemMap
          (conj {
                 ;; services

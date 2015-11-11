@@ -1,6 +1,7 @@
 {:http {:port 3000
         :session-key-file "sessionkey"
-        :session-timeout-secs 5184000000}
+        :session-timeout-secs 5184000000
+        :cookie-max-age 1209600}
  :datomic {:uri "datomic:dev://localhost:4334/shoppinglist"}
  :nrepl {:port 9090
          :host "localhost"}}
