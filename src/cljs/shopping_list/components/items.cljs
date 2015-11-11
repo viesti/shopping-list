@@ -76,7 +76,7 @@
                             (when-not (seq @matches)
                               (reset! selected-match nil))))
              :on-key-down (fn [event]
-                            (when (= 13 (.-keyCode event))
+                            (when (and (not (empty? @item-name)) (= 13 (.-keyCode event)))
                               (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
                                                             :handler update-after-selection})))
                             (when (#{40 38} (.-keyCode event))
