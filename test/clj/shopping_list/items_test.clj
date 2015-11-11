@@ -38,7 +38,8 @@
                                                                                     (handler request)))]
       (let [system (-> (system/new-system {:http {:port 3000
                                                   :session-key-file (.getAbsolutePath @session-key-file)
-                                                  :session-timeout-secs 30000}
+                                                  :session-timeout-secs 30000
+                                                  :cookie-max-age 3600}
                                            :datomic {:uri datomic-uri}})
                        (assoc :http {}) ;; Mock out Jetty
                        (assoc :nrepl {}) ;; Disable nrepl server
@@ -66,7 +67,8 @@
 (deftest listing-items-without-session
   (let [system (-> (system/new-system {:http {:port 3000
                                               :session-key-file (.getAbsolutePath @session-key-file)
-                                              :session-timeout-secs 30000}
+                                              :session-timeout-secs 30000
+                                              :cookie-max-age 3600}
                                        :datomic {:uri datomic-uri}})
                    (assoc :http {}) ;; Mock out Jetty
                    (assoc :nrepl {}) ;; Disable nrepl server
