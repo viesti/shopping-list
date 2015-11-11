@@ -9,7 +9,6 @@
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [shopping-list.system :as system]
             [shopping-list.utils :as utils]
-            [figwheel]
             [figwheel-sidecar.repl-api :as fr]
             [figwheel-component.core :refer [figwheel-component]]))
 
