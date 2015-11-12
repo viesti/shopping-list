@@ -68,29 +68,30 @@
   [:div.item-box
    [:h1 "Lisää shoppailuja"]
    [:div
-    [:input {:type "text"
-             :on-blur
-             (fn [_] (reset! matches []))
-             :on-change
-             (fn [event]
-               (let [text (-> event .-target .-value)]
-                 (reset! item-name text)
-                 (if-not (empty? text)
-                   (reset! matches (filter #(re-find (re-pattern (str "(?i)" text)) (:name %)) @items))
-                   (reset! matches []))
-                 (when-not (seq @matches)
-                   (reset! selected-match nil))))
-             :on-key-down
-             (fn [event]
-               (when (and (not (empty? @item-name)) (= 13 (.-keyCode event)))
-                 (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
-                                               :handler update-after-selection})))
-               (when (#{40 38} (.-keyCode event))
-                 (let [dir (get {40 :down 38 :up} (.-keyCode event))
-                       selection @selected-match]
-                   (when (seq @matches)
-                     (swap! selected-match (partial new-selection dir))))))
-             :value @item-name}]
+    [:input
+     {:type "text"
+      :on-blur
+      (fn [_] (reset! matches []))
+      :on-change
+      (fn [event]
+        (let [text (-> event .-target .-value)]
+          (reset! item-name text)
+          (if-not (empty? text)
+            (reset! matches (filter #(re-find (re-pattern (str "(?i)" text)) (:name %)) @items))
+            (reset! matches []))
+          (when-not (seq @matches)
+            (reset! selected-match nil))))
+      :on-key-down
+      (fn [event]
+        (when (and (not (empty? @item-name)) (= 13 (.-keyCode event)))
+          (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
+                                        :handler update-after-selection})))
+        (when (#{40 38} (.-keyCode event))
+          (let [dir (get {40 :down 38 :up} (.-keyCode event))
+                selection @selected-match]
+            (when (seq @matches)
+              (swap! selected-match (partial new-selection dir))))))
+      :value @item-name}]
     [:button
      {:on-click
       (fn [_]
