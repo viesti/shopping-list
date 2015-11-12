@@ -18,21 +18,25 @@
   (let [username (reagent/atom nil)
         password (reagent/atom nil)]
     (fn []
-      [:div.table
-       [:div.row
-        [:span.column.label "Tunnus"]
-        [:input.column {:type "text"
-                        :on-change (fn [event]
-                                     (reset! username (-> event .-target .-value)))}]]
-       [:diw.row
-        [:span.column.label "Salasana"]
-        [:input.column {:type "password"
-                        :on-key-down (fn [event]
-                                       (when (= 13 (.-keyCode event))
-                                         (login username password)))
-                        :on-change (fn [event]
-                                     (reset! password (-> event .-target .-value)))}]]
-       [:div.row
-        [:span.column] [:button.column
-                        {:on-click #(login username password)}
-                        "Kirjaudu"]]])))
+      [:div.login
+       [:div.labels
+        [:span "Tunnus"]
+        [:span "Salasana"]
+        [:span]]
+       [:div.controls
+        [:input {:type "text"
+                 :on-change
+                 (fn [event]
+                   (reset! username (-> event .-target .-value)))}]
+        [:input {:type "password"
+                 :on-key-down
+                 (fn [event]
+                   (when (= 13 (.-keyCode event))
+                     (login username password)))
+                 :on-change
+                 (fn [event]
+                   (reset! password (-> event .-target .-value)))}]
+        [:button
+         {:on-click
+          #(login username password)}
+         "Kirjaudu"]]])))

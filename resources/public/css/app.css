@@ -5,6 +5,7 @@ body {
 input {
   width: 200px;
   margin-left: 5px;
+  margin-right: 5px;
 }
 
 button {
@@ -54,27 +55,32 @@ ul {
   margin: 5px;
 }
 
-.table {
-  display: table;
-}
-
-.row {
-  display: table-row;
-}
-
-.column {
-  display: table-cell;
-  margin: 5px;
-}
-
-.label {
-  text-align: right;
-}
-
 .logout {
   display: block;
 }
 
 .icon-ok {
   margin: 5px;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.login {
+  display: flex;
+  flex-direction: row;
+}
+
+.labels {
+  display: flex;
+  text-align: right;
+  flex-direction: column;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
 }
