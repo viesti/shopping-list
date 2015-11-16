@@ -25,7 +25,7 @@
                  [reagent "0.5.1"]]
   :plugins [[lein-gen "0.2.2"]
             [lein-figwheel "0.5.0-1"]
-            [lein-cljsbuild "1.1.0"]
+            [lein-cljsbuild "1.1.1"]
             [com.jakemccrary/lein-test-refresh "0.10.0"]]
   :generators [[duct/generators "0.1.2"]]
   :duct {:ns-prefix shopping-list}
@@ -69,7 +69,7 @@
    :profiles/test {}
    :project/dev   {:source-paths ["dev"]
                    :repl-options {:init-ns user}
-                   :dependencies [[reloaded.repl "0.2.0"]
+                   :dependencies [[reloaded.repl "0.2.1"]
                                   [org.clojure/tools.namespace "0.2.11"]
                                   [org.clojure/tools.nrepl "0.2.10"]
                                   [peridot "0.4.1"]
