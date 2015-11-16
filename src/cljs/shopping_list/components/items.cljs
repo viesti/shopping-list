@@ -29,20 +29,24 @@
                 [:button.icon-ok {:on-click
                                   (fn [_]
                                     (POST "/buy" (merge handlers {:params {:id id}})))}]
-                [:span (str (if (> count 1)
-                              (str count " ")
-                              "") name)]]])]])
+                [:span.item-name (str (if (> count 1)
+                                        (str count " ")
+                                        "") name)]]])]])
 
 (defn item-controls []
-  [:div
-   [:span
-    {:class (if (= :add @item-control) "item-control-selected" "item-control-deselected")
+  [:div.item-controls
+   [:input
+    {:type "radio"
+     :value "item-control-type"
+     :checked (= :add @item-control)
      :on-click
      (fn [_] (reset! item-control :add))}
     "Lisää"]
    [:span " / "]
-   [:span
-    {:class (if (= :remove @item-control) "item-control-selected" "item-control-deselected")
+   [:input
+    {:type "radio"
+     :value "item-control-type"
+     :checked (= :remove @item-control)
      :on-click
      (fn [_] (reset! item-control :remove))}
     "Poista"]
@@ -64,52 +68,58 @@
   (reset! matches [])
   (reset! selected-match nil))
 
+(defn matches-list []
+  [:ul.matches
+   {:class (if (seq @matches) "matches-visible" "matches-invisible")}
+   (doall (for [{:keys [id name]} @matches]
+            (let [selected-id (:id @selected-match)]
+              ^{:key (str id)}
+              [:li
+               {:class (if (= selected-id id) "match-selected" "match-deselected")
+                :on-click
+                (fn [_]
+                  (POST "/add" (merge handlers {:params {:item-name name}
+                                                :handler update-after-selection})))}
+               name])))])
+
+(defn new-item []
+  [:div.new-item
+   [:input
+    {:type "text"
+     :on-blur
+     (fn [_] (reset! matches []))
+     :on-change
+     (fn [event]
+       (let [text (-> event .-target .-value)]
+         (reset! item-name text)
+         (if-not (empty? text)
+           (reset! matches (filter #(re-find (re-pattern (str "(?i)" text)) (:name %)) @items))
+           (reset! matches []))
+         (when-not (seq @matches)
+           (reset! selected-match nil))))
+     :on-key-down
+     (fn [event]
+       (when (and (not (empty? @item-name)) (= 13 (.-keyCode event)))
+         (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
+                                       :handler update-after-selection})))
+       (when (#{40 38} (.-keyCode event))
+         (let [dir (get {40 :down 38 :up} (.-keyCode event))
+               selection @selected-match]
+           (when (seq @matches)
+             (swap! selected-match (partial new-selection dir))))))
+     :value @item-name}]
+   [:button
+    {:on-click
+     (fn [_]
+       (POST "/add" (merge handlers {:params {:item-name @item-name}
+                                     :handler update-after-selection})))}
+    "Lisää"]])
+
 (defn all-items []
   [:div.item-box
    [:h1 "Lisää shoppailuja"]
-   [:div
-    [:input
-     {:type "text"
-      :on-blur
-      (fn [_] (reset! matches []))
-      :on-change
-      (fn [event]
-        (let [text (-> event .-target .-value)]
-          (reset! item-name text)
-          (if-not (empty? text)
-            (reset! matches (filter #(re-find (re-pattern (str "(?i)" text)) (:name %)) @items))
-            (reset! matches []))
-          (when-not (seq @matches)
-            (reset! selected-match nil))))
-      :on-key-down
-      (fn [event]
-        (when (and (not (empty? @item-name)) (= 13 (.-keyCode event)))
-          (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
-                                        :handler update-after-selection})))
-        (when (#{40 38} (.-keyCode event))
-          (let [dir (get {40 :down 38 :up} (.-keyCode event))
-                selection @selected-match]
-            (when (seq @matches)
-              (swap! selected-match (partial new-selection dir))))))
-      :value @item-name}]
-    [:button
-     {:on-click
-      (fn [_]
-        (POST "/add" (merge handlers {:params {:item-name @item-name}
-                                      :handler update-after-selection})))}
-     "Lisää"]
-    [:ul.matches
-     {:style {:display (if (seq @matches) "block" "none")}}
-     (doall (for [{:keys [id name]} @matches]
-              (let [selected-id (:id @selected-match)]
-                ^{:key (str id)}
-                [:li
-                 {:class (if (= selected-id id) "selected" "deselected")
-                  :on-click
-                  (fn [_]
-                    (POST "/add" (merge handlers {:params {:item-name name}
-                                                  :handler update-after-selection})))}
-                 name])))]]
+   [new-item]
+   [matches-list]
    [:ul (doall (for [{:keys [id name]} @items]
                  ^{:key (str id)}
                  [:li
@@ -121,7 +131,7 @@
                    (if (= :add @item-control)
                      "Lisää"
                      "Poista")]
-                  [:span name]]))]
+                  [:span.item-name name]]))]
    [item-controls]])
 
 (defn logout []
@@ -136,9 +146,10 @@
    "Kirjaudu pois"])
 
 (defn view []
-  [:div
-   [needed-items]
-   [all-items]
+  [:div.content
+   [:div.items
+    [needed-items]
+    [all-items]]
    [logout]])
 
 (def items-view (with-meta
