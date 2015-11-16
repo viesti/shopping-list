@@ -6,25 +6,25 @@
                                    :username :env
                                    :password :env}}
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [com.stuartsierra/component "0.2.3"]
+                 [com.stuartsierra/component "0.3.0"]
                  [compojure "1.4.0"]
-                 [duct "0.1.2"]
+                 [duct "0.4.5"]
                  [meta-merge "0.1.1"]
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.1.5"]
-                 [ring-jetty-component "0.2.2"]
-                 [ring-transit "0.1.3"]
-                 [prismatic/plumbing "0.4.4"]
+                 [ring-jetty-component "0.3.0"]
+                 [ring-transit "0.1.4"]
+                 [prismatic/plumbing "0.5.2"]
                  [com.datomic/datomic-pro "0.9.5201" :exclusions [joda-time]]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]
                  [buddy/buddy-hashers "0.6.0"]
-                 [org.clojure/tools.nrepl "0.2.10"]
+                 [org.clojure/tools.nrepl "0.2.11"]
 
-                 [org.clojure/clojurescript "0.0-3308"]
-                 [cljs-ajax "0.3.13"]
-                 [reagent "0.5.0"]]
+                 [org.clojure/clojurescript "1.7.170"]
+                 [cljs-ajax "0.5.1"]
+                 [reagent "0.5.1"]]
   :plugins [[lein-gen "0.2.2"]
-            [lein-figwheel "0.3.7"]
+            [lein-figwheel "0.5.0-1"]
             [lein-cljsbuild "1.0.6"]
             [com.jakemccrary/lein-test-refresh "0.10.0"]]
   :generators [[duct/generators "0.1.2"]]
@@ -36,7 +36,8 @@
   :source-paths ["src/clj" "src/cljc"]
   :test-paths ["test/clj" "test/cljc"]
   :cljsbuild {:builds {:dev {:source-paths ["src/cljs"]
-                             :figwheel {:on-jsload "shopping-list.app/main"}
+                             :figwheel {:on-jsload "shopping-list.app/main"
+                                        :websocket-host "172.16.0.62"}
                              :compiler {:main shopping-list.app
                                         :output-to "resources/public/js/app.js"
                                         :output-dir "resources/public/js/out"
@@ -48,7 +49,10 @@
                                          :optimizations :advanced}}}}
   :figwheel {:nrepl-port 7889
              :open-file-command "myfile-opener"
-             :css-dirs ["resources/public/css"]}
+             :css-dirs ["resources/public/css"]
+             :nrepl-middleware ["cider.nrepl/cider-middleware"
+                                "refactor-nrepl.middleware/wrap-refactor"
+                                "cemerick.piggieback/wrap-cljs-repl"]}
   :clean-targets ^{:protect false} ["resources/public/js/app.js"
                                     "resources/public/js/out"
                                     :target-path]
@@ -68,7 +72,7 @@
                    :dependencies [[reloaded.repl "0.2.0"]
                                   [org.clojure/tools.namespace "0.2.11"]
                                   [org.clojure/tools.nrepl "0.2.10"]
-                                  [peridot "0.4.0"]
-                                  [figwheel-sidecar "0.3.9"]
-                                  [figwheel-component "0.1.0-SNAPSHOT"]]}
+                                  [peridot "0.4.1"]
+                                  [figwheel-sidecar "0.5.0-1"]
+                                  [com.cemerick/piggieback "0.2.1"]]}
    :project/test  {}})
