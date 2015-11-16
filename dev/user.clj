@@ -10,14 +10,19 @@
             [shopping-list.system :as system]
             [shopping-list.utils :as utils]
             [figwheel-sidecar.repl-api :as fr]
-            [figwheel-component.core :refer [figwheel-component]]))
+            [datomic.api :as d]
+            [buddy.hashers :as hashers]))
 
 (def dev-config
   {:app {:middleware [wrap-stacktrace]}})
 
 (reloaded.repl/set-init! #(system/new-system (meta-merge dev-config
                                                          (utils/read-config "config.edn")
-                                                         (if (.exists (io/file "config-local.edn"))
-                                                           (utils/read-config "config-local.edn")
-                                                           {})
-                                                         {:dev-components [:figwheel (figwheel-component :dev)]})))
+                                                         (when (.exists (io/file "config-local.edn"))
+                                                           (utils/read-config "config-local.edn")))))
+
+(defn insert-test-user []
+  (d/transact (d/connect (-> system :datomic :uri))
+              [{:db/id #db/id[:db.part/user]
+                                           :user/username "foo"
+                :user/password (hashers/encrypt "bar" {:algorithm :bcrypt+sha512})}]))
