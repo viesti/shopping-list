@@ -25,7 +25,7 @@
                  [reagent "0.5.1"]]
   :plugins [[lein-gen "0.2.2"]
             [lein-figwheel "0.5.0-1"]
-            [lein-cljsbuild "1.0.6"]
+            [lein-cljsbuild "1.1.0"]
             [com.jakemccrary/lein-test-refresh "0.10.0"]]
   :generators [[duct/generators "0.1.2"]]
   :duct {:ns-prefix shopping-list}
