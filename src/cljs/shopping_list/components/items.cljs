@@ -19,11 +19,14 @@
 (def handlers {:handler set-items
                :error-handler error-handler})
 
-(defn update-after-selection [items]
-  (set-items items)
+(defn reset-inputs []
   (reset! item-name "")
   (reset! matches [])
   (reset! selected-match nil))
+
+(defn set-items-and-reset-inputs [items]
+  (set-items items)
+  (reset-inputs))
 
 (defn needed-items []
   [:div.item-box
@@ -73,7 +76,8 @@
                         (fn [item]
                           (if (= name (:name item))
                             (update item :count inc)
-                            item)))))
+                            item))))
+  (reset-inputs))
 
 (defn matches-list []
   [:ul.matches
@@ -87,17 +91,21 @@
                 (fn [_]
                   (optimistic-inc name)
                   (POST "/add" (merge handlers {:params {:item-name name}
-                                                :handler update-after-selection})))}
+                                                :handler set-items-and-reset-inputs})))}
                name])))])
+
+(defn optimistic-add [name]
+  (swap! items
+         (comp (partial sort-by :name) conj)
+         {:name name
+          :count 1
+          :id "some-new-item"})
+  (reset-inputs))
 
 (defn optimistic-add-or-inc [name]
   (if (seq (filter #(= name (:name %)) @items))
     (optimistic-inc name)
-    (swap! items
-           (comp (partial sort-by :name) conj)
-           {:name name
-            :count 1
-            :id "some-new-item"})))
+    (optimistic-add name)))
 
 (defn new-item []
   [:div.new-item
@@ -117,9 +125,10 @@
      :on-key-down
      (fn [event]
        (when (and (not (empty? @item-name)) (= 13 (.-keyCode event)))
-         (optimistic-add-or-inc (or (:name @selected-match) @item-name))
-         (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
-                                       :handler update-after-selection})))
+         (let [name (or (:name @selected-match) @item-name)]
+           (optimistic-add-or-inc name)
+           (POST "/add" (merge handlers {:params {:item-name name}
+                                         :handler set-items-and-reset-inputs}))))
        (when (#{40 38} (.-keyCode event))
          (let [dir (get {40 :down 38 :up} (.-keyCode event))
                selection @selected-match]
@@ -130,7 +139,7 @@
     {:on-click
      (fn [_]
        (POST "/add" (merge handlers {:params {:item-name @item-name}
-                                     :handler update-after-selection})))}
+                                     :handler set-items-and-reset-inputs})))}
     "Lisää"]])
 
 (defn all-items []
