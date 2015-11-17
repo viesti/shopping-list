@@ -45,7 +45,7 @@
     {:type "radio"
      :value "item-control-type"
      :checked (= :add @item-control)
-     :on-click
+     :on-change
      (fn [_] (reset! item-control :add))}
     "Lisää"]
    [:span " / "]
@@ -53,7 +53,7 @@
     {:type "radio"
      :value "item-control-type"
      :checked (= :remove @item-control)
-     :on-click
+     :on-change
      (fn [_] (reset! item-control :remove))}
     "Poista"]
    [:span " vaihtoehtoja"]])
