@@ -19,6 +19,12 @@
 (def handlers {:handler set-items
                :error-handler error-handler})
 
+(defn update-after-selection [items]
+  (set-items items)
+  (reset! item-name "")
+  (reset! matches [])
+  (reset! selected-match nil))
+
 (defn needed-items []
   [:div.item-box
    [:h1 "Tarvitaan"]
@@ -62,11 +68,12 @@
         (last @matches)
         (first @matches))))
 
-(defn update-after-selection [items]
-  (set-items items)
-  (reset! item-name "")
-  (reset! matches [])
-  (reset! selected-match nil))
+(defn optimistic-inc [name]
+  (swap! items (partial map
+                        (fn [item]
+                          (if (= name (:name item))
+                            (update item :count inc)
+                            item)))))
 
 (defn matches-list []
   [:ul.matches
@@ -78,9 +85,19 @@
                {:class (if (= selected-id id) "match-selected" "match-deselected")
                 :on-click
                 (fn [_]
+                  (optimistic-inc name)
                   (POST "/add" (merge handlers {:params {:item-name name}
                                                 :handler update-after-selection})))}
                name])))])
+
+(defn optimistic-add-or-inc [name]
+  (if (seq (filter #(= name (:name %)) @items))
+    (optimistic-inc name)
+    (swap! items
+           (comp (partial sort-by :name) conj)
+           {:name name
+            :count 1
+            :id "some-new-item"})))
 
 (defn new-item []
   [:div.new-item
@@ -100,6 +117,7 @@
      :on-key-down
      (fn [event]
        (when (and (not (empty? @item-name)) (= 13 (.-keyCode event)))
+         (optimistic-add-or-inc (or (:name @selected-match) @item-name))
          (POST "/add" (merge handlers {:params {:item-name (or (:name @selected-match) @item-name)}
                                        :handler update-after-selection})))
        (when (#{40 38} (.-keyCode event))
