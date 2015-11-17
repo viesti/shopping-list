@@ -28,6 +28,22 @@
   (set-items items)
   (reset-inputs))
 
+(defn optimistic-count [name update-count]
+  (swap! items (partial map
+                        (fn [item]
+                          (if (= name (:name item))
+                            (update item :count update-count)
+                            item))))
+  (reset-inputs))
+
+(defn optimistic-add [name]
+  (swap! items
+         (comp (partial sort-by :name) conj)
+         {:name name
+          :count 1
+          :id "some-new-item"})
+  (reset-inputs))
+
 (defn needed-items []
   [:div.item-box
    [:h1 "Tarvitaan"]
@@ -37,6 +53,7 @@
           [:li [:div
                 [:button.icon-ok {:on-click
                                   (fn [_]
+                                    (optimistic-count name dec)
                                     (POST "/buy" (merge handlers {:params {:id id}})))}]
                 [:span.item-name (str (if (> count 1)
                                         (str count " ")
@@ -71,14 +88,6 @@
         (last @matches)
         (first @matches))))
 
-(defn optimistic-inc [name]
-  (swap! items (partial map
-                        (fn [item]
-                          (if (= name (:name item))
-                            (update item :count inc)
-                            item))))
-  (reset-inputs))
-
 (defn matches-list []
   [:ul.matches
    {:class (if (seq @matches) "matches-visible" "matches-invisible")}
@@ -89,22 +98,14 @@
                {:class (if (= selected-id id) "match-selected" "match-deselected")
                 :on-click
                 (fn [_]
-                  (optimistic-inc name)
+                  (optimistic-count name inc)
                   (POST "/add" (merge handlers {:params {:item-name name}
                                                 :handler set-items-and-reset-inputs})))}
                name])))])
 
-(defn optimistic-add [name]
-  (swap! items
-         (comp (partial sort-by :name) conj)
-         {:name name
-          :count 1
-          :id "some-new-item"})
-  (reset-inputs))
-
 (defn optimistic-add-or-inc [name]
   (if (seq (filter #(= name (:name %)) @items))
-    (optimistic-inc name)
+    (optimistic-count name inc)
     (optimistic-add name)))
 
 (defn new-item []
@@ -138,8 +139,10 @@
    [:button
     {:on-click
      (fn [_]
-       (POST "/add" (merge handlers {:params {:item-name @item-name}
-                                     :handler set-items-and-reset-inputs})))}
+       (let [name @item-name]
+         (optimistic-add name)
+         (POST "/add" (merge handlers {:params {:item-name name}
+                                       :handler set-items-and-reset-inputs}))))}
     "Lisää"]])
 
 (defn all-items []
