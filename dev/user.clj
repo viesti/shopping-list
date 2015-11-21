@@ -11,7 +11,13 @@
             [shopping-list.utils :as utils]
             [figwheel-sidecar.repl-api :as fr]
             [datomic.api :as d]
-            [buddy.hashers :as hashers]))
+            [buddy.hashers :as hashers]
+            [eftest.runner :as eftest]))
+
+(ns-unmap *ns* 'test)
+
+(defn test []
+  (eftest/run-tests (eftest/find-tests "test/clj") {:multithread? false}))
 
 (def dev-config
   {:app {:middleware [wrap-stacktrace]}})

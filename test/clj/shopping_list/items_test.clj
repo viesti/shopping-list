@@ -5,8 +5,6 @@
             [com.stuartsierra.component :as component]
             [datomic.api :as d]
             [peridot.core :as p]
-            [shopping-list.component.datomic :as datomic]
-            [shopping-list.endpoint.authentication :refer [authentication]]
             [shopping-list.endpoint.items :refer [items]]
             [shopping-list.system :as system]
             [buddy.hashers :as hashers]))

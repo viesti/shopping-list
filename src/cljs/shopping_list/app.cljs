@@ -3,7 +3,8 @@
             [ajax.core :refer [GET]]
             [shopping-list.state :as state]
             [shopping-list.components.items :as items]
-            [shopping-list.components.login :as login]))
+            [shopping-list.components.login :as login]
+            [shopping-list.config :as config]))
 
 (defn loading-view []
   [:span ""])
@@ -15,12 +16,17 @@
 (defn main-view []
   [(state/get-view)])
 
+(defn render-app [element]
+  (let [component (reagent/render [main-view] element)]
+    (GET (str config/root "/items")
+        {:handler (fn [items]
+                    (.log js/console "app started")
+                    (state/set-view :items)
+                    (items/set-items items))
+         :error-handler (fn [{:keys [status status-text failure]}]
+                          (.log js/console (str "app start fail, status: " status ", status-text: " status-text ", failure: " failure))
+                          (state/set-view :login))})
+    component))
+
 (defn ^:export main []
-  (reagent/render [main-view]
-    (.-body js/document))
-  (GET "/items"
-      {:handler (fn [items]
-                  (state/set-view :items)
-                  (items/set-items items))
-       :error-handler (fn [{:keys [status status-text failure]}]
-                        (state/set-view :login))}))
+  (render-app (.-body js/document)))
