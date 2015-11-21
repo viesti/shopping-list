@@ -53,7 +53,7 @@
                               :compiler {:main shopping-list.unit-runner
                                          :output-to "resources/public/js/test.js"
                                          :optimizations :none}}
-                       :prod {:source-paths ["src/cljs"]
+                       :prod {:source-paths ["src/cljs" "src/cljs-app-config"]
                               :compiler {:output-to "resources/public/js/app.js"
                                          :optimizations :advanced}}}}
   :figwheel {:nrepl-port 7889
