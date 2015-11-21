@@ -34,7 +34,7 @@
                    (.setTimeout js/window
                                 (fn []
                                   (testing "after login, items are displayed"
-                                    (is (= :login @state/current-view)))
+                                    (is (= :items @state/current-view)))
                                   (done))
                                 3000))
                  1000)))
