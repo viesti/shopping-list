@@ -45,7 +45,8 @@
                        :output-dir "out"
                        :asset-path "out"
                        :optimizations :none}]
-    (cljs/build (apply cljs/inputs ["src/cljs" "test/cljs" "test/cljs-app-config"]) compiler-opts)
+    (binding [*print-length* nil]
+      (cljs/build (apply cljs/inputs ["src/cljs" "test/cljs" "test/cljs-app-config"]) compiler-opts))
     (-> (doo/run-script :phantom compiler-opts doo-opts)
         :exit
         zero?
