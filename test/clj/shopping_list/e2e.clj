@@ -1,10 +1,8 @@
 (ns shopping-list.e2e
   (:import (java.io ByteArrayOutputStream))
   (:require [clojure.test :refer :all]
-            [cognitect.transit :as transit]
             [com.stuartsierra.component :as component]
             [datomic.api :as d]
-            [peridot.core :as p]
             [shopping-list.system :as system]
             [buddy.hashers :as hashers]
             [doo.core :as doo]
