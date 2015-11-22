@@ -24,8 +24,9 @@
                     (state/set-view :items)
                     (items/set-items items))
          :error-handler (fn [{:keys [status status-text failure]}]
-                          (.log js/console (str "app start fail, status: " status ", status-text: " status-text ", failure: " failure))
-                          (state/set-view :login))})
+                          (condp = status
+                            401 (state/set-view :login)
+                            (.log js/console (str "app start fail, status: " status ", status-text: " status-text ", failure: " failure))))})
     component))
 
 (defn ^:export main []
