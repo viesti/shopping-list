@@ -11,15 +11,13 @@
             [cljs.build.api :as cljs]
             [ring.middleware.cors :refer [wrap-cors]]))
 
-(def session-key-file (atom nil))
-(def datomic-uri (str "datomic:mem://" (d/squuid)))
-
 (use-fixtures :each (fn [f]
-                      (reset! session-key-file (java.io.File/createTempFile "sessionkey" nil))
-                      (with-open [out (clojure.java.io/output-stream @session-key-file)]
-                        (.write out (byte-array 16) 0 16))
-                      (let [system (-> (system/new-system {:http {:port 3333
-                                                                  :session-key-file (.getAbsolutePath @session-key-file)
+                      (let [datomic-uri (str "datomic:mem://" (d/squuid))
+                            session-key-file (java.io.File/createTempFile "sessionkey" nil)
+                            _ (with-open [out (clojure.java.io/output-stream session-key-file)]
+                                (.write out (byte-array 16) 0 16))
+                            system (-> (system/new-system {:http {:port 3333
+                                                                  :session-key-file (.getAbsolutePath session-key-file)
                                                                   :session-timeout-secs 30000
                                                                   :cookie-max-age 3600}
                                                            :datomic {:uri datomic-uri}
@@ -34,20 +32,19 @@
                                       :user/username "foo"
                                       :user/password (hashers/encrypt "bar" {:algorithm :bcrypt+sha512})}])
                         (f)
-                        (component/stop system))
-                      (.delete @session-key-file)
-                      (d/delete-database datomic-uri)))
+                        (component/stop system)
+                        (.delete session-key-file)
+                        (d/delete-database datomic-uri))))
 
 (deftest suite
-  (let [doo-opts {:paths {}}
-        compiler-opts {:main 'shopping-list.e2e-runner
+  (let [compiler-opts {:main 'shopping-list.e2e-runner
                        :output-to "out/test.js"
                        :output-dir "out"
                        :asset-path "out"
                        :optimizations :none}]
     (binding [*print-length* nil]
       (cljs/build (apply cljs/inputs ["src/cljs" "test/cljs" "test/cljs-app-config"]) compiler-opts))
-    (-> (doo/run-script :phantom compiler-opts doo-opts)
+    (-> (doo/run-script :phantom compiler-opts {})
         :exit
         zero?
         is)))
